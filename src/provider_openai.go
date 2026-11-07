@@ -128,17 +128,19 @@ func openAIChatRequestBody(req *ChatRequest) (map[string]any, error) {
 	}
 
 	body := struct {
-		Model    string              `json:"model"`
-		Messages []openAIWireMessage `json:"messages"`
-		Stream   bool                `json:"stream"`
-		Tools    []ToolSpec          `json:"tools,omitempty"`
-		Effort   string              `json:"reasoning_effort,omitempty"`
+		Model     string              `json:"model"`
+		Messages  []openAIWireMessage `json:"messages"`
+		Stream    bool                `json:"stream"`
+		Tools     []ToolSpec          `json:"tools,omitempty"`
+		Effort    string              `json:"reasoning_effort,omitempty"`
+		MaxTokens int                 `json:"max_tokens,omitempty"`
 	}{
-		Model:    req.Model,
-		Messages: messages,
-		Stream:   false,
-		Tools:    req.Tools,
-		Effort:   req.Effort,
+		Model:     req.Model,
+		Messages:  messages,
+		Stream:    false,
+		Tools:     req.Tools,
+		Effort:    req.Effort,
+		MaxTokens: req.MaxTokens,
 	}
 
 	return requestMap(body)

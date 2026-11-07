@@ -179,7 +179,7 @@ func anthropicRequestBody(req *ChatRequest) (map[string]any, error) {
 		MaxTokens    int                    `json:"max_tokens"`
 		Tools        []anthropicTool        `json:"tools,omitempty"`
 		OutputConfig *anthropicOutputConfig `json:"output_config,omitempty"`
-	}{req.Model, system, messages, 8192, tools, outputConfig}
+	}{req.Model, system, messages, tokenLimitOr(req.MaxTokens, 8192), tools, outputConfig}
 
 	return requestMap(body)
 }

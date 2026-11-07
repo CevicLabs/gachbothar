@@ -18,10 +18,11 @@ func (ollamaNativeDialect) ParseRequest(r *http.Request) (*ChatRequest, error) {
 	defer r.Body.Close()
 
 	var body struct {
-		Model    string              `json:"model"`
-		Messages []ollamaWireMessage `json:"messages"`
-		Tools    []ToolSpec          `json:"tools"`
-		Stream   bool                `json:"stream"`
+		Model    string                 `json:"model"`
+		Messages []ollamaWireMessage    `json:"messages"`
+		Tools    []ToolSpec             `json:"tools"`
+		Stream   bool                   `json:"stream"`
+		Options  map[string]interface{} `json:"options"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		return nil, fmt.Errorf("decode ollama-native request: %w", err)
@@ -39,12 +40,26 @@ func (ollamaNativeDialect) ParseRequest(r *http.Request) (*ChatRequest, error) {
 		}
 		messages = append(messages, m)
 	}
+	// Ollama's num_predict reads 0 and negatives as "no limit", so both stay
+	// unset here; only a fraction is not a number of tokens at all.
+	maxTokens := 0
+	if raw, ok := body.Options["num_predict"]; ok {
+		limit, ok := raw.(float64)
+		if !ok || limit != float64(int(limit)) {
+			return nil, fmt.Errorf("options.num_predict must be a whole number: %v", raw)
+		}
+		if limit > 0 {
+			maxTokens = int(limit)
+		}
+	}
+
 	return &ChatRequest{
-		Provider: provider,
-		Model:    model,
-		Messages: messages,
-		Stream:   body.Stream,
-		Tools:    body.Tools,
+		Provider:  provider,
+		Model:     model,
+		Messages:  messages,
+		Stream:    body.Stream,
+		Tools:     body.Tools,
+		MaxTokens: maxTokens,
 	}, nil
 }
 

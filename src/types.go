@@ -53,6 +53,9 @@ type ChatRequest struct {
 	Stream   bool
 	Tools    []ToolSpec
 	Effort   string
+	// MaxTokens is the client's output-token limit; 0 means the client set
+	// none.
+	MaxTokens int
 }
 
 // ChatResponse is the normalized response returned by a provider adapter.

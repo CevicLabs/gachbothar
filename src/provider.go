@@ -62,3 +62,12 @@ func BuildProviders(cfg *Config) (map[string]ProviderAdapter, error) {
 	}
 	return providers, nil
 }
+
+// tokenLimitOr uses the client's output-token limit when one was set and a
+// provider's fixed default otherwise.
+func tokenLimitOr(maxTokens, fallback int) int {
+	if maxTokens != 0 {
+		return maxTokens
+	}
+	return fallback
+}

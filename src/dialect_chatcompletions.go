@@ -97,10 +97,12 @@ func (chatCompletionsDialect) ParseRequest(r *http.Request) (*ChatRequest, error
 	defer r.Body.Close()
 
 	var body struct {
-		Model    string              `json:"model"`
-		Messages []openAIWireMessage `json:"messages"`
-		Stream   bool                `json:"stream"`
-		Tools    []ToolSpec          `json:"tools,omitempty"`
+		Model               string              `json:"model"`
+		Messages            []openAIWireMessage `json:"messages"`
+		Stream              bool                `json:"stream"`
+		Tools               []ToolSpec          `json:"tools,omitempty"`
+		MaxCompletionTokens *float64            `json:"max_completion_tokens"`
+		MaxTokens           *float64            `json:"max_tokens"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		return nil, fmt.Errorf("decode chat_completions request: %w", err)
@@ -127,13 +129,40 @@ func (chatCompletionsDialect) ParseRequest(r *http.Request) (*ChatRequest, error
 	}
 
 	provider, model := splitProviderModel(body.Model)
+
+	limit := body.MaxCompletionTokens
+	field := "max_completion_tokens"
+	if limit == nil {
+		limit = body.MaxTokens
+		field = "max_tokens"
+	}
+	maxTokens, err := requestOutputLimit(limit, field)
+	if err != nil {
+		return nil, err
+	}
+
 	return &ChatRequest{
-		Provider: provider,
-		Model:    model,
-		Messages: messages,
-		Stream:   body.Stream,
-		Tools:    body.Tools,
+		Provider:  provider,
+		Model:     model,
+		Messages:  messages,
+		Stream:    body.Stream,
+		Tools:     body.Tools,
+		MaxTokens: maxTokens,
 	}, nil
+}
+
+// requestOutputLimit parses the shared *float64 wire shape for a whole-number
+// output limit: absent stays unset, zero or negative and every fraction is
+// rejected with a 400 naming the client's field.
+func requestOutputLimit(limit *float64, field string) (int, error) {
+	if limit == nil {
+		return 0, nil
+	}
+	whole := float64(int(*limit))
+	if *limit < 1 || *limit != whole {
+		return 0, fmt.Errorf("%s must be a whole number of at least 1", field)
+	}
+	return int(*limit), nil
 }
 
 func (chatCompletionsDialect) WriteResponse(w http.ResponseWriter, resp *ChatResponse) error {

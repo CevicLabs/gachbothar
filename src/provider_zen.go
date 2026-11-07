@@ -220,7 +220,7 @@ func zenMessagesRequestBody(req *ChatRequest) (map[string]any, error) {
 		Model:        req.Model,
 		System:       strings.Join(systemParts, "\n\n"),
 		Messages:     messages,
-		MaxTokens:    4096,
+		MaxTokens:    tokenLimitOr(req.MaxTokens, 4096),
 		Tools:        tools,
 		OutputConfig: outputConfig,
 	}

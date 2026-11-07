@@ -223,6 +223,19 @@ func ollamaThink(effort string) any {
 	return effort
 }
 
+// ollamaRequestOptions carries the client's output-token limit. nil means the
+// client set none, so the whole options object is left off the request.
+type ollamaOptions struct {
+	NumPredict int `json:"num_predict,omitempty"`
+}
+
+func ollamaRequestOptions(req *ChatRequest) *ollamaOptions {
+	if req.MaxTokens == 0 {
+		return nil
+	}
+	return &ollamaOptions{NumPredict: req.MaxTokens}
+}
+
 func (p *OllamaProvider) marshalChatRequest(req *ChatRequest) ([]byte, error) {
 	wireMessages := make([]ollamaWireMessage, 0, len(req.Messages))
 	for _, m := range req.Messages {
@@ -254,12 +267,14 @@ func (p *OllamaProvider) marshalChatRequest(req *ChatRequest) ([]byte, error) {
 		Stream   bool                `json:"stream"`
 		Tools    []ToolSpec          `json:"tools,omitempty"`
 		Think    any                 `json:"think,omitempty"`
+		Options  *ollamaOptions      `json:"options,omitempty"`
 	}{
 		Model:    req.Model,
 		Messages: wireMessages,
 		Stream:   false,
 		Tools:    req.Tools,
 		Think:    ollamaThink(req.Effort),
+		Options:  ollamaRequestOptions(req),
 	}
 
 	bodyJSON, err := json.Marshal(body)

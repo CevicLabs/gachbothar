@@ -104,11 +104,12 @@ func (responsesDialect) ParseRequest(r *http.Request) (*ChatRequest, error) {
 	defer r.Body.Close()
 
 	var body struct {
-		Model        string                   `json:"model"`
-		Instructions string                   `json:"instructions"`
-		Input        []responsesWireInputItem `json:"input"`
-		Tools        []responsesWireTool      `json:"tools,omitempty"`
-		Reasoning    json.RawMessage          `json:"reasoning"`
+		Model           string                   `json:"model"`
+		Instructions    string                   `json:"instructions"`
+		Input           []responsesWireInputItem `json:"input"`
+		Tools           []responsesWireTool      `json:"tools,omitempty"`
+		Reasoning       json.RawMessage          `json:"reasoning"`
+		MaxOutputTokens *float64                 `json:"max_output_tokens"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		return nil, fmt.Errorf("decode responses request: %w", err)
@@ -180,12 +181,18 @@ func (responsesDialect) ParseRequest(r *http.Request) (*ChatRequest, error) {
 	}
 
 	provider, model := splitProviderModel(body.Model)
+	maxTokens, err := requestOutputLimit(body.MaxOutputTokens, "max_output_tokens")
+	if err != nil {
+		return nil, err
+	}
+
 	return &ChatRequest{
-		Provider: provider,
-		Model:    model,
-		Messages: messages,
-		Tools:    tools,
-		Effort:   responsesReasoningEffort(body.Reasoning),
+		Provider:  provider,
+		Model:     model,
+		Messages:  messages,
+		Tools:     tools,
+		Effort:    responsesReasoningEffort(body.Reasoning),
+		MaxTokens: maxTokens,
 		// The Responses client always sends "Accept: text/event-stream"
 		// and requires SSE framing regardless of a "stream" field on the
 		// request body - same shape of requirement as chat_completions'
