@@ -106,7 +106,7 @@ func TestHiddenNoRetryWhenNothingWasSent(t *testing.T) {
 }
 
 func TestHiddenOllamaNoneRefusedIsRetried(t *testing.T) {
-	route := effortRoutes()[3]
+	route := effortRoutes()[2]
 	url, calls := effortServer(t, func(n int) (int, string) {
 		if n == 1 {
 			return http.StatusBadRequest, `{"error":"no"}`
@@ -199,7 +199,7 @@ func TestHiddenResponsesToleratesOddReasoning(t *testing.T) {
 
 // The whole way in: a Responses request through the dialect to a backend.
 func TestHiddenResponsesRequestReachesBackend(t *testing.T) {
-	route := effortRoutes()[3]
+	route := effortRoutes()[2]
 	url, calls := effortServer(t, func(int) (int, string) { return http.StatusOK, route.reply })
 	req := effortParse(t, `{"effort":"medium","summary":"auto"}`)
 	if req.Provider != "ollama" || req.Model != "m" {

@@ -12,8 +12,7 @@ backend speaks.
   uses), OpenAI Chat Completions (`/v1/chat/completions`) and Ollama native
   (`/api/chat`). Plus `GET /v1/models`.
 - **Backends out:** any OpenAI-compatible server (Ollama `/v1`, llama.cpp,
-  vLLM, ...), Ollama native, Anthropic Messages, and OpenCode Zen (chat or
-  Messages protocol).
+  vLLM, ...), Ollama native, and OpenCode Zen (chat or Messages protocol).
 - **Tool calls** in both directions, including multi-turn tool use.
 - **Streaming** end to end (SSE or Ollama's newline-delimited JSON).
 - **Token usage normalised**, including cached input tokens, so cost and cache
@@ -22,7 +21,8 @@ backend speaks.
   retry without it when a model rejects the field.
 
 Models are addressed as `provider/model`, where `provider` is a name from your
-config: `ollama/qwen3:8b`, `llamacpp/gpt-oss-20b`, `anthropic/claude-sonnet-5-5`.
+config: `ollama/qwen3:8b`, `llamacpp/gpt-oss-20b`, or
+`zen/claude-sonnet-5-5` (Claude models go through OpenCode Zen).
 
 ## Security
 
@@ -82,14 +82,14 @@ unit and keeps config and logs.
   "providers": {
     "ollama":   { "type": "openai", "base_url": "http://127.0.0.1:11434/v1", "models": ["qwen3:8b"] },
     "llamacpp": { "type": "openai", "base_url": "http://127.0.0.1:8080/v1" },
-    "anthropic": { "type": "anthropic", "base_url": "https://api.anthropic.com", "api_key_env": "ANTHROPIC_API_KEY" }
+    "zen": { "type": "zen", "base_url": "https://opencode.ai", "api_key_env": "ZEN_API_KEY" }
   }
 }
 ```
 
 | Field | Meaning |
 |---|---|
-| `type` | `openai`, `ollama` (default), `anthropic` or `zen` |
+| `type` | `openai`, `ollama` (default) or `zen` |
 | `base_url` | backend address; for `openai` include the version path (`.../v1`) |
 | `api_key_env` | environment variable holding the key; empty for local backends |
 | `models` | names listed by `GET /v1/models` (any name is still routed) |

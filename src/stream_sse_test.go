@@ -16,13 +16,6 @@ func TestSSEProvidersStreamAndAssembleTools(t *testing.T) {
 		name, protocol string
 		events         []string
 	}{
-		{"anthropic", "messages", []string{
-			`{"type":"message_start","message":{"usage":{"input_tokens":3,"cache_read_input_tokens":2,"output_tokens":0}}}`,
-			`{"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"hi"}}`,
-			`{"type":"content_block_start","index":1,"content_block":{"type":"tool_use","id":"id1","name":"f","input":{}}}`,
-			`{"type":"content_block_delta","index":1,"delta":{"type":"input_json_delta","partial_json":"{\"x\":"}}`,
-			`{"type":"content_block_delta","index":1,"delta":{"type":"input_json_delta","partial_json":"1}"}}`,
-			`{"type":"message_delta","usage":{"output_tokens":4}}`, `{"type":"message_stop"}`}},
 		{"zen-chat", "chat", []string{
 			`{"choices":[{"index":0,"delta":{"content":"hi"}}]}`,
 			`{"choices":[{"index":0,"delta":{"tool_calls":[{"index":0,"id":"id1","function":{"name":"f","arguments":"{\"x\":"}}]}}]}`,
@@ -172,7 +165,7 @@ func TestStreamDialectFinishCarriesToolAndUsage(t *testing.T) {
 }
 
 func TestStreamingEffortRetryAndAuth(t *testing.T) {
-	for _, protocol := range []string{"anthropic", "chat", "messages"} {
+	for _, protocol := range []string{"chat", "messages"} {
 		t.Run(protocol, func(t *testing.T) {
 			attempts := 0
 			upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -213,16 +206,11 @@ func TestStreamingEffortRetryAndAuth(t *testing.T) {
 			defer upstream.Close()
 			t.Setenv("TEST_STREAM_KEY", "test-key")
 			req := &ChatRequest{Model: "m", Effort: "high"}
-			var p StreamingProvider
-			if protocol == "anthropic" {
-				p = NewAnthropicProvider("a", upstream.URL, "TEST_STREAM_KEY")
-			} else {
-				z, err := NewZenProvider("z", upstream.URL, "TEST_STREAM_KEY", protocol)
-				if err != nil {
-					t.Fatal(err)
-				}
-				p = z
+			z, err := NewZenProvider("z", upstream.URL, "TEST_STREAM_KEY", protocol)
+			if err != nil {
+				t.Fatal(err)
 			}
+			var p StreamingProvider = z
 			if _, err := p.Stream(context.Background(), req, func(string) error { return nil }); err != nil {
 				t.Fatal(err)
 			}

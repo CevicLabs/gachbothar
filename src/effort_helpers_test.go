@@ -57,16 +57,6 @@ func effortOutputConfig(effort string) any {
 func effortRoutes() []effortRoute {
 	return []effortRoute{
 		{
-			name: "anthropic",
-			build: func(t *testing.T, url string) ProviderAdapter {
-				t.Setenv("EFFORT_TEST_KEY", "k")
-				return NewAnthropicProvider("anthropic", url, "EFFORT_TEST_KEY")
-			},
-			reply: effortMessagesReply,
-			field: "output_config",
-			want:  effortOutputConfig,
-		},
-		{
 			name:  "zen messages",
 			build: func(t *testing.T, url string) ProviderAdapter { return effortZen(t, url, "messages") },
 			reply: effortMessagesReply,

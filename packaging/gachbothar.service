@@ -6,7 +6,7 @@ Wants=network-online.target
 [Service]
 Type=simple
 User=@USER@
-# API keys (ANTHROPIC_API_KEY=..., ZEN_API_KEY=..., OLLAMA_API_KEY=...), one per line, mode 0600.
+# API keys (ZEN_API_KEY=..., OLLAMA_API_KEY=...), one per line, mode 0600.
 EnvironmentFile=-/usr/local/etc/gachbothar/gachbothar.env
 Environment=PROVIDERS_CONFIG=/usr/local/etc/gachbothar/providers.json
 ExecStart=/usr/local/bin/gachbothar

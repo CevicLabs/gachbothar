@@ -137,14 +137,13 @@ const tokensSSEMessagesStop = "data: {\"type\":\"message_stop\"}\n\n"
 
 type tokensProviderCase struct {
 	name    string
-	backend string // "chat" (OpenAI chat), "messages" (Anthropic messages), "ollama"
+	backend string // "chat" (OpenAI chat), "messages", "ollama"
 }
 
 var tokensProviderCases = []tokensProviderCase{
 	{"openai", "chat"},
 	{"zen chat", "chat"},
 	{"zen messages", "messages"},
-	{"anthropic", "messages"},
 	{"ollama", "ollama"},
 }
 
@@ -185,8 +184,6 @@ func tokensNewProvider(t *testing.T, name, url string) ProviderAdapter {
 		return newTestZen(t, url)
 	case "zen messages":
 		return newTestZenMessages(t, url)
-	case "anthropic":
-		return newTestAnthropic(t, url)
 	case "ollama":
 		return NewOllamaProvider("ollama", url, "", false, 0)
 	}
@@ -273,10 +270,6 @@ func TestMaxTokensProvidersDefaultsWhenUnset(t *testing.T) {
 				if _, present := body["options"]; present {
 					t.Errorf("options sent with no limit: %v", body["options"])
 				}
-			case "anthropic":
-				if got, _ := body["max_tokens"].(float64); got != 8192 {
-					t.Errorf("max_tokens = %v, want the 8192 default", body["max_tokens"])
-				}
 			case "zen messages":
 				if got, _ := body["max_tokens"].(float64); got != 4096 {
 					t.Errorf("max_tokens = %v, want the 4096 default", body["max_tokens"])
@@ -292,10 +285,6 @@ func TestMaxTokensSurvivesEffortRetry(t *testing.T) {
 		build func(t *testing.T, url string) ProviderAdapter
 		reply string
 	}{
-		{"anthropic", func(t *testing.T, url string) ProviderAdapter {
-			t.Setenv("EFFORT_TEST_KEY", "k")
-			return NewAnthropicProvider("anthropic", url, "EFFORT_TEST_KEY")
-		}, effortMessagesReply},
 		{"ollama", func(t *testing.T, url string) ProviderAdapter {
 			return NewOllamaProvider("ollama", url, "", false, 0)
 		}, tokensOllamaReply},

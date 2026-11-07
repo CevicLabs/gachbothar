@@ -23,9 +23,6 @@ type StreamingProvider interface {
 // adding one file and one registry entry here, never touching BuildProviders
 // itself - the same pattern dialect.go already uses for incoming protocols.
 var providerBuilders = map[string]func(name string, pc ProviderConfig) (ProviderAdapter, error){
-	"anthropic": func(name string, pc ProviderConfig) (ProviderAdapter, error) {
-		return NewAnthropicProvider(name, pc.BaseURL, pc.APIKeyEnv), nil
-	},
 	"ollama": func(name string, pc ProviderConfig) (ProviderAdapter, error) {
 		return NewOllamaProvider(name, pc.BaseURL, pc.APIKeyEnv, pc.AutoPull, pc.PullTimeoutSeconds), nil
 	},

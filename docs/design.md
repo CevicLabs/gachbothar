@@ -11,7 +11,7 @@ The router selects a provider by prefix and keeps provider and dialect logic sep
 - Chat Completions `/v1/chat/completions` serves JSON or SSE.
 - Ollama native `/api/chat` serves JSON or newline-delimited streaming JSON.
 - Ollama (native), OpenAI-compatible (`openai`: Ollama `/v1`, llama.cpp, vLLM and
-  similar), Anthropic Messages, and OpenCode Zen chat or Messages providers
+  similar), and OpenCode Zen chat or Messages providers
   support incremental backend responses for streaming requests. Non-streaming
   requests use the buffered provider path.
 - Providers normalize tool calls and optional token usage. Reasoning effort is

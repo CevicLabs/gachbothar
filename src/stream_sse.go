@@ -26,16 +26,6 @@ func requestMap(body any) (map[string]any, error) {
 	return m, err
 }
 
-func (p *AnthropicProvider) Stream(ctx context.Context, req *ChatRequest, emit func(string) error) (*ChatResponse, error) {
-	if p.apiKey == "" {
-		return nil, fmt.Errorf("anthropic provider %q: no API key set (check api_key_env)", p.name)
-	}
-	body, err := anthropicRequestBody(req)
-	if err != nil {
-		return nil, err
-	}
-	return streamSSE(ctx, p.client, p.baseURL+"/v1/messages", body, req, "messages", func(h http.Header) { h.Set("x-api-key", p.apiKey); h.Set("anthropic-version", "2023-06-01") }, emit)
-}
 func (p *ZenProvider) Stream(ctx context.Context, req *ChatRequest, emit func(string) error) (*ChatResponse, error) {
 	if p.apiKey == "" {
 		return nil, fmt.Errorf("zen provider %q: no API key set (check api_key_env)", p.name)

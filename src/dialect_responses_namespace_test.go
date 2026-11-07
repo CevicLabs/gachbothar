@@ -10,12 +10,13 @@ import (
 // Checker for tasks/namespace-tools.md. Codex sends MCP tools grouped as
 // {"type":"namespace","name":"mcp__stage","tools":[...]} and expects calls back as
 // {"type":"function_call","name":"read","namespace":"mcp__stage",...}. Providers such as
-// Anthropic only take flat function tools, so the dialect flattens on the way in and
-// splits on the way out. Found 5 Nov 2026: Sonnet via gachbothar never saw MCP tools.
+// Messages providers only take flat function tools, so the dialect flattens on
+// the way in and splits on the way out. Found 5 Nov 2026: Sonnet via OpenCode
+// Zen over the messages protocol never saw MCP tools.
 
 func TestParseRequest_NamespaceToolsFlattened(t *testing.T) {
 	body := `{
-		"model": "anthropic/claude-sonnet-5-5",
+		"model": "zen/claude-sonnet-5-5",
 		"input": [{"type":"message","role":"user","content":[{"type":"input_text","text":"go"}]}],
 		"tools": [
 			{"type":"function","name":"list_mcp_resources","description":"list","parameters":{"type":"object"}},
@@ -46,7 +47,7 @@ func TestParseRequest_NamespaceToolsFlattened(t *testing.T) {
 
 func TestParseRequest_NamespacedCallHistoryFlattened(t *testing.T) {
 	body := `{
-		"model": "anthropic/claude-sonnet-5-5",
+		"model": "zen/claude-sonnet-5-5",
 		"input": [
 			{"type":"message","role":"user","content":[{"type":"input_text","text":"go"}]},
 			{"type":"function_call","name":"read","namespace":"mcp__stage","arguments":"{\"path\":\"src/a.py\"}","call_id":"call_1"},

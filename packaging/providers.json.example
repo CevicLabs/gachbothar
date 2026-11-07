@@ -20,17 +20,12 @@
       "base_url": "http://127.0.0.1:8080/v1",
       "api_key_env": ""
     },
-    "anthropic": {
-      "type": "anthropic",
-      "base_url": "https://api.anthropic.com",
-      "api_key_env": "ANTHROPIC_API_KEY"
-    },
     "zen": {
       "type": "zen",
       "base_url": "https://opencode.ai",
       "api_key_env": "ZEN_API_KEY"
     },
-    "zen-anthropic": {
+    "zen-messages": {
       "type": "zen",
       "protocol": "messages",
       "base_url": "https://opencode.ai",
