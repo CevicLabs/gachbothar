@@ -1,0 +1,4 @@
+build/
+providers.json
+*.env
+*.log
