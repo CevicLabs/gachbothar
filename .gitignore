@@ -2,3 +2,6 @@ build/
 providers.json
 *.env
 *.log
+.team/
+STATUS.md
+PLAN.md
