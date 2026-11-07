@@ -127,4 +127,4 @@ adding a client protocol is one `Dialect` implementation.
 
 ## Licence
 
-MIT, see `LICENSE`.
+Apache License 2.0, see `LICENSE` and `NOTICE`.
